@@ -3,48 +3,12 @@ import bbox from "@turf/bbox";
 import bearing from "@turf/bearing";
 import { useEffect } from "react";
 
-const Layers = ({
-  lanes,
-  junctions,
-  intersections,
-  connections,
-  scale,
-  mapRef,
-  updatedLanes,
-  directionLines,
-}) => {
-  const linesMap = new Map();
-  const laneArrowsLayer = [];
-
+const Layers = ({ lanes, mapRef, directionLines }) => {
   const features = lanes.map((lane) => {
     const coords = lane.coords.map((c) => {
       //reverse coordinates for geojson format
       return [c[1], c[0]];
     });
-
-    laneArrowsLayer.push({
-      id: lane.id,
-      start: coords[0],
-      end: coords[coords.length - 1],
-      bearing: bearing(coords[coords.length - 2], coords[coords.length - 1]), //end and penultimate point
-      arrow: lane.arrows,
-    });
-
-    // console.log("lane", lane);
-    linesMap.set(lane.edgeId + "_" + lane.node.attributes.index, {
-      index: lane.node.attributes.index,
-      start: coords[0],
-      end: coords[coords.length - 1],
-    });
-
-    // const edge = edges[lane.edgeId] || null;
-    // let strokeColor = "white";
-    // if (scale && edge) {
-    //   const display =
-    //     (edge[scale.display] - scale.min) / (scale.max - scale.min);
-    //   strokeColor = scale.color(display);
-    // }
-
     const geometry = {
       type: "Feature",
       geometry: {
@@ -86,91 +50,6 @@ const Layers = ({
         19,
         18,
       ],
-    },
-  };
-
-  const junctionsFeatures = junctions.map((junction) => {
-    return {
-      type: "Feature",
-      geometry: {
-        type: "Point",
-        coordinates: [junction.x, junction.y],
-      },
-      properties: {
-        ...junction,
-      },
-    };
-  });
-
-  const junctionsGeojson = {
-    type: "FeatureCollection",
-    features: junctionsFeatures,
-  };
-
-  const junctionsLayerStyle = {
-    id: "junctions",
-    type: "symbol",
-    source: "junctions",
-    layout: {
-      "icon-image": "junction",
-      "icon-allow-overlap": true,
-      "icon-size": [
-        "interpolate",
-        ["linear"],
-        ["zoom"],
-        10,
-        0.01,
-        18,
-        0.5,
-        19,
-        1,
-      ],
-    },
-  };
-
-  const intersectionsFeatures = intersections.map((intersection) => {
-    const coords = intersection.coords.map((c) => {
-      //reverse coordinates for geojson format
-      return [c[1], c[0]];
-    });
-    coords.push(coords[0]); //add first coordinate to close the line
-
-    // const edge = edges[intersection.edgeId] || null;
-    let strokeColor = "white";
-    // if (scale && edge) {
-    //   const display =
-    //     (edge[scale.display] - scale.min) / (scale.max - scale.min);
-    //   strokeColor = scale.color(display);
-    // }
-    const geometry = {
-      type: "Feature",
-      geometry: {
-        type: "LineString",
-        coordinates: coords,
-      },
-      properties: {
-        ...intersection.node.attributes,
-        color: strokeColor,
-      },
-    };
-    return geometry;
-  });
-
-  const intersectionsGeojson = {
-    type: "FeatureCollection",
-    features: intersectionsFeatures,
-  };
-  const intersectionsLayerStyle = {
-    id: "intersections",
-    type: "line",
-    source: "intersections",
-    layout: {
-      "line-join": "round",
-      "line-cap": "round",
-    },
-    paint: {
-      "line-color": "white",
-      "line-width": 1,
     },
   };
 

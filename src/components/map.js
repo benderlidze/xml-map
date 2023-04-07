@@ -21,10 +21,7 @@ const XMLMap = ({ xml, csv }) => {
         return convert.xml2js(xml, { compact: false });
     }, [xml]);
     const root = useMemo(() => new XMLNode(xmlDoc), [xmlDoc]);
-    const lanes = useMemo(() => { return root.select({ name: "lane" }).map((l) => new XMLLane(l)); }, [root]);
-    const junctions = useMemo(() => root.select({ name: "junction", type: "traffic_light" }).map((l) => new XMLJunction(l)), [root]);
-    const intersections = useMemo(() => root.select({ name: "junction", type: "priority" }).map((l) => new XMLLane(l)), [root]);
-    const connections = useMemo(() => root.select({ name: "connection" }).map((d) => d), [root]);
+    const lanes = useMemo(() => { return root.select({ name: "edge" }).map((l) => new XMLLane(l)); }, [root]);
 
     const iconsArray = [
         { name: "arrowRed", image: arrowRed, type: "png", size: { x: 20, y: 20 } },
@@ -93,10 +90,6 @@ const XMLMap = ({ xml, csv }) => {
                         to: node.node.attributes.shape.split(" ")[0],
                         value: flow[index]
                     })
-                    // lines.push({
-                    //     from: element,
-                    //     to: node,
-                    // })
                 }
             });
             setDirectionLines(lines);
@@ -125,12 +118,7 @@ const XMLMap = ({ xml, csv }) => {
             <NavigationControl />
             <Layers
                 lanes={lanes}
-                junctions={junctions}
-                intersections={intersections}
-                connections={connections}
-                // edges={edges}
                 mapRef={mapRef}
-                // updatedLanes={updatedLanes}
                 directionLines={directionLines}
             />
         </Map>
