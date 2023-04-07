@@ -26,9 +26,6 @@ const XMLMap = ({ xml, csv }) => {
     const intersections = useMemo(() => root.select({ name: "junction", type: "priority" }).map((l) => new XMLLane(l)), [root]);
     const connections = useMemo(() => root.select({ name: "connection" }).map((d) => d), [root]);
 
-    console.log('lanes', lanes);
-    console.log('csv', csv);
-
     const iconsArray = [
         { name: "arrowRed", image: arrowRed, type: "png", size: { x: 20, y: 20 } },
     ];
@@ -67,36 +64,34 @@ const XMLMap = ({ xml, csv }) => {
     };
     const onMouseEnter = useCallback((event) => {
         const feature = event.features && event.features[0];
-        console.log('event, feature', event, feature);
         setCursor("pointer")
 
         const id = feature && feature.properties && feature.properties.id;
         const shape = feature && feature.properties && feature.properties.shape;
-        console.log('id!!!', id);
 
         const csvData = csv.filter((d) => d.edge_id === id.split("_")[0]);
-        console.log('csdData', csvData);
 
         if (csvData.length > 0) {
             const edges = JSON.parse(csvData[0].outgoing_edges.replace(/'/g, '"'))
             const flow = JSON.parse(csvData[0].simulated_flow.replace(/'/g, '"'))
 
-            console.log('edges', edges);
-            console.log('flow', flow);
-            console.log('root', root);
-            console.log('lanes', lanes);
-            console.log('junctions', junctions);
-            console.log('intersections', intersections);
-            console.log('connections', connections);
+            // console.log('edges', edges);
+            // console.log('flow', flow);
+            // console.log('root', root);
+            // console.log('lanes', lanes);
+            // console.log('junctions', junctions);
+            // console.log('intersections', intersections);
+            // console.log('connections', connections);
 
             const lines = []
-            edges.forEach(element => {
+            edges.forEach((element, index) => {
                 const node = lanes.find(d => d.node.attributes.id.split("_")[0] === element)
                 if (node) {
                     console.log('node', node);
                     lines.push({
                         from: shape.split(" ").pop(),
                         to: node.node.attributes.shape.split(" ")[0],
+                        value: flow[index]
                     })
                     // lines.push({
                     //     from: element,
@@ -105,7 +100,6 @@ const XMLMap = ({ xml, csv }) => {
                 }
             });
             setDirectionLines(lines);
-            console.log('lines', lines);
         }
 
     }, []);
@@ -124,7 +118,7 @@ const XMLMap = ({ xml, csv }) => {
             mapboxAccessToken={
                 "pk.eyJ1Ijoic3dlcnQiLCJhIjoiY2s3bHNtdjF2MDJ1eTNmcGowanU5MHR4ZiJ9.hzhWj9bhgD5itpWAPc3nNA"
             }
-            interactiveLayerIds={["route", "junctions"]}
+            interactiveLayerIds={["route"]}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
         >
